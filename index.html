@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Ekologi – Begreppstest</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 40px; max-width: 700px; }
+    .question-box { padding: 20px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Ekologi – Begreppstest</h1>
+<p>Du får slumpade frågor om ekologiska begrepp. 1 poäng per rätt svar.</p>
+
+<div id="quiz"></div>
+<button id="nextBtn" onclick="nextQuestion()">Starta testet</button>
+
+<script>
+// ------------------------------
+// BEGREPP OCH FÖRKLARINGAR
+// ------------------------------
+const terms = [
+    {term:"andrahandskonsument", def:"Rovdjur som äter växtätande djur."},
+    {term:"biomassa", def:"Massan av alla levande organismer."},
+    {term:"bärkraft", def:"Det största antal individer som kan leva på resurserna i ett ekosystem."},
+    {term:"cellandning", def:"Druvsocker och syre reagerar och bildar koldioxid och vatten. Energi frigörs."},
+    {term:"destruent", def:"Nedbrytare."},
+    {term:"ekologisk nisch", def:"Det utrymme där en art har bäst chans att överleva och föröka sig."},
+    {term:"ekosystem", def:"Organismerna och den miljö de lever i."},
+    {term:"flock", def:"En stor grupp djur, oftast inom samma art."},
+    {term:"fotosyntes", def:"Druvsocker och syre bildas av koldioxid, vatten och ljusenergi."},
+    {term:"förstahandskonsument", def:"Växtätande djur."},
+    {term:"generalist", def:"Allätare som lever i en bred nisch."},
+    {term:"glukos", def:"Druvsocker som bildas i fotosyntesen."},
+    {term:"kamouflage", def:"Göra sig svår att se för att inte bli upptäckt."},
+    {term:"klorofyll", def:"Det gröna färgämnet som binder solenergi i växter."},
+    {term:"kommensalism", def:"Samspel där en organism vinner och den andra inte påverkas."},
+    {term:"konkurrens", def:"Uppstår när resurser inte räcker till alla organismer."},
+    {term:"konsument", def:"Djur som lever av växter eller andra djur."},
+    {term:"mimikry", def:"Härma en annan art för att verka farlig."},
+    {term:"mutualism", def:"Samspel där båda organismerna vinner."},
+    {term:"nedbrytare", def:"Organism som får näring av att bryta ner döda organismer."},
+    {term:"näringskedja", def:"Visar hur organismer är beroende av varandra som föda."},
+    {term:"näringspyramid", def:"Visar hur energi rör sig i ett ekosystem."},
+    {term:"näringsväv", def:"Visar alla näringskedjor i ett ekosystem."},
+    {term:"parasitism", def:"Samspel där en organism vinner och den andra förlorar."},
+    {term:"population", def:"Antal individer av en art inom ett område."},
+    {term:"predator", def:"Rovdjur."},
+    {term:"producent", def:"Organism som har fotosyntes."},
+    {term:"specialist", def:"Lever i en smal nisch, t.ex. äter bara en sak."},
+    {term:"symbios", def:"Samlevnad mellan olika organismer."},
+    {term:"toppkonsument", def:"Högst upp i näringspyramiden, har inga naturliga fiender."}
+];
+
+let score = 0;
+let questionIndex = 0;
+let usedQuestions = [];
+
+// ------------------------------
+// GENERERA FRÅGETYPER
+// ------------------------------
+function getRandomQuestion() {
+    let q;
+    do {
+        q = terms[Math.floor(Math.random() * terms.length)];
+    } while (usedQuestions.includes(q.term));
+    usedQuestions.push(q.term);
+
+    const type = Math.floor(Math.random() * 3); // 0=MC, 1=lucktext, 2=skriv själv
+
+    if (type === 0) return makeMultipleChoice(q);
+    if (type === 1) return makeFillBlank(q);
+    return makeWriteAnswer(q);
+}
+
+function makeMultipleChoice(q) {
+    let wrong = terms.filter(t => t.term !== q.term);
+    wrong = wrong.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+    const options = [...wrong.map(w => w.term), q.term].sort(() => 0.5 - Math.random());
+
+    return {
+        html: `
+            <div class="question-box">
+                <h3>Vilket begrepp passar till denna förklaring?</h3>
+                <p><i>${q.def}</i></p>
+                ${options.map(o => `
+                    <label><input type="radio" name="answer" value="${o}"> ${o}</label><br>
+                `).join("")}
+            </div>
+        `,
+        correct: q.term
+    };
+}
+
+function makeFillBlank(q) {
+    let wrong = terms.filter(t => t.term !== q.term);
+    wrong = wrong.sort(() => 0.5 - Math.random()).slice(0, 2);
+    const options = [...wrong.map(w => w.term), q.term].sort(() => 0.5 - Math.random());
+
+    return {
+        html: `
+            <div class="question-box">
+                <h3>Fyll i luckan:</h3>
+                <p>${q.def.replace(q.term, "_____")}</p>
+                <select id="fillSelect">
+                    <option value="">Välj...</option>
+                    ${options.map(o => `<option value="${o}">${o}</option>`).join("")}
+                </select>
+            </div>
+        `,
+        correct: q.term
+    };
+}
+
+function makeWriteAnswer(q) {
+    return {
+        html: `
+            <div class="question-box">
+                <h3>Skriv begreppet:</h3>
+                <p><i>${q.def}</i></p>
+                <input id="textAnswer" type="text" placeholder="Skriv ditt svar här">
+            </div>
+        `,
+        correct: q.term
+    };
+}
+
+// ------------------------------
+// HANTERA FRÅGOR
+// ------------------------------
+let currentQuestion;
+
+function nextQuestion() {
+    if (questionIndex > 0) checkAnswer();
+
+    if (usedQuestions.length === terms.length) {
+        document.getElementById("quiz").innerHTML = `<h2>Testet är slut!</h2><p>Du fick ${score} poäng av ${terms.length} möjliga.</p>`;
+        document.getElementById("nextBtn").style.display = "none";
+        return;
+    }
+
+    currentQuestion = getRandomQuestion();
+    document.getElementById("quiz").innerHTML = currentQuestion.html;
+    questionIndex++;
+    document.getElementById("nextBtn").innerText = "Nästa fråga";
+}
+
+function checkAnswer() {
+    let userAnswer = "";
+
+    const radio = document.querySelector("input[name='answer']:checked");
+    if (radio) userAnswer = radio.value;
+
+    const select = document.getElementById("fillSelect");
+    if (select) userAnswer = select.value;
+
+    const text = document.getElementById("textAnswer");
+    if (text) userAnswer = text.value.trim().toLowerCase();
+
+    if (userAnswer === currentQuestion.correct.toLowerCase()) {
+        score++;
+    }
+}
+</script>
+
+</body>
+</html>
