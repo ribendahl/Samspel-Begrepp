@@ -159,18 +159,6 @@ function nextQuestion() {
 }
 
 function checkAnswer() {
-    const feedback = document.getElementById("feedback");
-
-if (
-    userAnswer.trim().toLowerCase() ===
-    currentQuestion.correct.toLowerCase()
-) {
-    score++;
-    feedback.innerHTML = "<p style='color:green'>Rätt!</p>";
-} else {
-    feedback.innerHTML =
-        `<p style='color:red'>Fel. Rätt svar: ${currentQuestion.correct}</p>`;
-}
     let userAnswer = "";
 
     const radio = document.querySelector("input[name='answer']:checked");
@@ -180,10 +168,19 @@ if (
     if (select) userAnswer = select.value;
 
     const text = document.getElementById("textAnswer");
-    if (text) userAnswer = text.value.trim().toLowerCase();
+    if (text) userAnswer = text.value.trim();
 
-    if (userAnswer === currentQuestion.correct.toLowerCase()) {
+    const feedback = document.getElementById("feedback");
+
+    if (
+        userAnswer.trim().toLowerCase() ===
+        currentQuestion.correct.toLowerCase()
+    ) {
         score++;
+        feedback.innerHTML = "<p style='color:green'>Rätt!</p>";
+    } else {
+        feedback.innerHTML =
+            `<p style='color:red'>Fel. Rätt svar: ${currentQuestion.correct}</p>`;
     }
 }
 </script>
