@@ -102,16 +102,21 @@ function makeMultipleChoice(q) {
 function makeFillBlank(q) {
     let wrong = terms.filter(t => t.term !== q.term);
     wrong = wrong.sort(() => 0.5 - Math.random()).slice(0, 2);
-    const options = [...wrong.map(w => w.term), q.term].sort(() => 0.5 - Math.random());
+
+    const options = [...wrong.map(w => w.term), q.term]
+        .sort(() => 0.5 - Math.random());
 
     return {
         html: `
             <div class="question-box">
-                <h3>Fyll i luckan:</h3>
-                <p>${q.def.replace(q.term, "_____")}</p>
+                <h3>Vilket begrepp passar?</h3>
+                <p><i>${q.def}</i></p>
+
                 <select id="fillSelect">
                     <option value="">Välj...</option>
-                    ${options.map(o => `<option value="${o}">${o}</option>`).join("")}
+                    ${options.map(o =>
+                        `<option value="${o}">${o}</option>`
+                    ).join("")}
                 </select>
             </div>
         `,
