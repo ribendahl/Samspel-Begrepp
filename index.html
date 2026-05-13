@@ -16,6 +16,7 @@
 <p>Du får slumpade frågor om ekologiska begrepp. 1 poäng per rätt svar.</p>
 
 <div id="quiz"></div>
+    <div id="feedback"></div>
 <button id="nextBtn" onclick="nextQuestion()">Starta testet</button>
 
 <script>
@@ -36,7 +37,7 @@ const terms = [
     {term:"flock", def:"En stor grupp djur, oftast inom samma art."},
     {term:"fotosyntes", def:"Druvsocker och syre bildas av koldioxid, vatten och ljusenergi."},
     {term:"förstahandskonsument", def:"Växtätande djur."},
-    {term:"generalist", def:"Allätare som lever i en bred nisch."},
+    {term:"generalist", def:"Allätare som har i en bred nisch."},
     {term:"glukos", def:"Druvsocker som bildas i fotosyntesen."},
     {term:"kamouflage", def:"Göra sig svår att se för att inte bli upptäckt."},
     {term:"klorofyll", def:"Det gröna färgämnet som binder solenergi i växter."},
@@ -158,6 +159,18 @@ function nextQuestion() {
 }
 
 function checkAnswer() {
+    const feedback = document.getElementById("feedback");
+
+if (
+    userAnswer.trim().toLowerCase() ===
+    currentQuestion.correct.toLowerCase()
+) {
+    score++;
+    feedback.innerHTML = "<p style='color:green'>Rätt!</p>";
+} else {
+    feedback.innerHTML =
+        `<p style='color:red'>Fel. Rätt svar: ${currentQuestion.correct}</p>`;
+}
     let userAnswer = "";
 
     const radio = document.querySelector("input[name='answer']:checked");
